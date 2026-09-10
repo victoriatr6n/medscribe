@@ -1,0 +1,21 @@
+# secrets
+.env
+ 
+# python
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+ 
+# whisper / pyannote model caches (large, shouldn't be committed)
+*.pt
+.cache/
+ 
+# audio/data you may not want to publish (remove this if you WANT to commit sample audio)
+data/audio_samples/*
+!data/audio_samples/.gitkeep
+ 
+# OS/editor
+.DS_Store
+.vscode/

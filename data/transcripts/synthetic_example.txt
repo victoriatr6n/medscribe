@@ -1,0 +1,9 @@
+[DOCTOR]: Good morning, what brings you in today?
+[PATIENT]: I've had a sore throat and a mild fever since yesterday.
+[DOCTOR]: Any cough, or trouble swallowing?
+[PATIENT]: A little cough, and swallowing is uncomfortable but not unbearable.
+[DOCTOR]: Let me take a look. Your throat looks a bit red, some swelling on the tonsils.
+[DOCTOR]: Temperature is 100.4. I'd like to do a rapid strep test to rule that out.
+[PATIENT]: Sure, go ahead.
+[DOCTOR]: Test came back negative for strep. This looks viral. I'd recommend rest, fluids, and ibuprofen for the fever. Come back if it's not improving in five days or gets worse.
+[PATIENT]: Got it, thank you.
