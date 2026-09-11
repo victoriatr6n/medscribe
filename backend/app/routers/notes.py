@@ -61,3 +61,31 @@ async def generate_note(transcript: str):
         return generate_soap_note(transcript)
     except ValueError as e:
         raise HTTPException(status_code=502, detail=str(e))
+
+@router.post("/transcribe")
+async def transcribe_audio(file: UploadFile = File(...)):
+    # want to call transcription -> store that in a string? or dict of text, segment (value of 'segment' key is a lsit of {start,end,text})
+    # want to call diarization -> store list of segments {start,end,speaker}
+        # good format bc we can just align the start and end times + merge speaker and text
+
+    # want a new line for each speaker so will probably base when to write a new line based on result from diarization
+     # for each segment, find the time it overlaps with for transcription can pull those texts and concatentate them, label under appropriate speaker from diarization results
+        # append to a string? with escape characters
+
+    # give that transcript to the generate note script and return SOAP
+    transcript = transcribe_audio(file)
+    diarized = diarize_audio(file)
+    str_to_return = ""
+
+    for start_speaker,end_speaker,speaker in diarized:
+        tup = (speaker, "")
+        for text, segments in transcript:
+            for start_text,end_text,text in segments:
+                if start_text >= start_speaker and start_text <= end_speaker and end_text <= end_speaker and end_text >= start_speaker:
+                    tup[1] += text
+                    #should add all text that belongs to this speaker
+        str_to_return += f"{speaker} {tup[1]} \n"
+
+    soap_notes = generate_note(str_to_return)
+
+    return soap_notes
