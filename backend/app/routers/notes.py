@@ -11,6 +11,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 
 from app.services.transcription import transcribe
 from app.services.diarization import diarize
+from app.services.alignment import align_transcript_with_speakers
 from app.services.note_generation import generate_soap_note
 from app.models.soap_note import SoapNote
 
@@ -62,30 +63,20 @@ async def generate_note(transcript: str):
     except ValueError as e:
         raise HTTPException(status_code=502, detail=str(e))
 
-@router.post("/transcribe")
-async def transcribe_audio(file: UploadFile = File(...)):
-    # want to call transcription -> store that in a string? or dict of text, segment (value of 'segment' key is a lsit of {start,end,text})
-    # want to call diarization -> store list of segments {start,end,speaker}
-        # good format bc we can just align the start and end times + merge speaker and text
+@router.post("/process-visit")
+async def process_visit(file: UploadFile = File(...)):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp:
+        shutil.copyfileobj(file.file, tmp)
+        tmp_path = tmp.name
 
-    # want a new line for each speaker so will probably base when to write a new line based on result from diarization
-     # for each segment, find the time it overlaps with for transcription can pull those texts and concatentate them, label under appropriate speaker from diarization results
-        # append to a string? with escape characters
-
-    # give that transcript to the generate note script and return SOAP
-    transcript = transcribe_audio(file)
-    diarized = diarize_audio(file)
-    str_to_return = ""
-
-    for start_speaker,end_speaker,speaker in diarized:
-        tup = (speaker, "")
-        for text, segments in transcript:
-            for start_text,end_text,text in segments:
-                if start_text >= start_speaker and start_text <= end_speaker and end_text <= end_speaker and end_text >= start_speaker:
-                    tup[1] += text
-                    #should add all text that belongs to this speaker
-        str_to_return += f"{speaker} {tup[1]} \n"
-
-    soap_notes = generate_note(str_to_return)
-
-    return soap_notes
+    try:
+        transcript_result = transcribe(tmp_path)          # service, not route
+        diarization_segments = diarize(tmp_path)           # service, not route
+        labeled_transcript = align_transcript_with_speakers(
+            transcript_result["segments"], diarization_segments
+        )
+        print("=== LABELED TRANSCRIPT ===")
+        print(labeled_transcript)
+        return generate_soap_note(labeled_transcript)       # service, not route
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
