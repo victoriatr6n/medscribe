@@ -59,6 +59,12 @@ confidence to "low".
 - Do NOT invent clinical details (dosages, diagnoses, vitals) that are not in the \
 transcript. If something is not mentioned, do not include a field for it.
 - Keep "value" strings concise and clinical, not verbatim conversational speech.
+
+Calibrate confidence carefully:
+- Use "high" ONLY when the patient or doctor states the fact directly, in plain terms.
+- Use "medium" when the speaker hedges ("maybe", "I guess", "hard to say", "kind of") or when you are combining two separate statements to reach the value.
+- Use "low" when you are inferring something that was never stated outright.
+- Do NOT treat an unanswered or implicitly-answered question as confirmation. If the doctor asks "any vision changes?" and the patient's answer doesn't explicitly address it, do not include a "no vision changes" field at all — omit it rather than guess.
 """
 
 
